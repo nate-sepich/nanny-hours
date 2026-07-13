@@ -1,0 +1,8 @@
+# clasp / Apps Script CLI
+.clasprc.json
+*.clasprc.json
+.clasp-credentials.json
+.clasp.json
+
+# node
+node_modules/
