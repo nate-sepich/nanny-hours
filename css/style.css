@@ -156,22 +156,55 @@ main {
   padding: 0.5rem 0.9rem 0.75rem;
 }
 
+/* ---------- copy-last-week banner ---------- */
+.copy-banner {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+}
+.copy-banner:hover {
+  background: #dcebe1;
+}
+
 /* ---------- shift rows ---------- */
 .shift-row {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.6rem;
-  padding: 0.55rem 0;
+  gap: 0.7rem;
+  padding: 0.65rem 0;
   border-bottom: 1px dashed var(--border);
 }
 .shift-row:last-of-type {
   border-bottom: none;
 }
+.shift-row.invalid input,
+.shift-row.invalid select {
+  border-color: var(--danger);
+}
+.times {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.times .dash {
+  padding-bottom: 0.6rem;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
 .fld {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 .fld > span {
   font-size: 0.7rem;
@@ -180,21 +213,24 @@ main {
   color: var(--muted);
   font-weight: 600;
 }
-.fld input {
-  padding: 0.5rem 0.55rem;
+.fld input,
+.fld select {
+  padding: 0.55rem 0.55rem;
   font-size: 1rem;
   border: 1px solid var(--border-strong);
   border-radius: 8px;
   background: #fff;
   color: var(--text);
+  min-height: 44px;
 }
-.fld input:focus {
+.fld input:focus,
+.fld select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
-.fld.brk input {
-  width: 84px;
+.fld.brk select {
+  width: 92px;
 }
 .fld.notes {
   flex: 1 1 140px;
@@ -204,37 +240,50 @@ main {
   width: 100%;
 }
 .row-hours {
-  font-size: 0.85rem;
-  color: var(--muted);
   margin-left: auto;
-  padding-bottom: 0.55rem;
+  padding-bottom: 0.65rem;
   white-space: nowrap;
-}
-.row-hours span {
   font-weight: 700;
+  font-size: 1.05rem;
   color: var(--text);
-  font-size: 1rem;
+  min-width: 4.5rem;
+  text-align: right;
 }
-.remove {
-  width: 32px;
-  height: 32px;
+.row-actions {
+  display: flex;
+  gap: 0.35rem;
+  padding-bottom: 0.45rem;
+}
+.icon-btn {
+  width: 40px;
+  height: 40px;
   padding: 0;
-  margin-bottom: 0.35rem;
   border: 1px solid var(--border-strong);
   background: #fff;
   color: var(--muted);
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
-.remove:hover {
+.icon-btn.dup:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+}
+.icon-btn.remove:hover {
   border-color: var(--danger);
   color: var(--danger);
 }
+.row-warn {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+  color: var(--danger);
+  margin-top: 0.1rem;
+}
 .add-shift {
-  margin-top: 0.5rem;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.85rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--accent-dark);
   background: none;
@@ -245,6 +294,11 @@ main {
 .add-shift:hover {
   background: var(--accent-soft);
   border-color: var(--accent);
+}
+.wt-decimal {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
 }
 
 /* ---------- sticky save bar ---------- */
@@ -445,17 +499,40 @@ td.num, th.num {
 }
 
 /* ---------- small screens ---------- */
-@media (max-width: 520px) {
-  .fld input[type="time"] {
+@media (max-width: 560px) {
+  .times {
+    flex: 1 1 100%;
+    order: 1;
+  }
+  .times .fld {
+    flex: 1;
+  }
+  .times input[type="time"] {
     width: 100%;
   }
-  .fld:not(.brk):not(.notes) {
-    flex: 1 1 45%;
+  .fld.brk {
+    order: 2;
+  }
+  .fld.brk select {
+    width: 110px;
+  }
+  .fld.notes {
+    flex: 1 1 100%;
+    order: 3;
   }
   .row-hours {
-    width: 100%;
+    order: 4;
     margin-left: 0;
     padding-bottom: 0;
-    text-align: right;
+    text-align: left;
+    align-self: center;
+  }
+  .row-actions {
+    order: 5;
+    margin-left: auto;
+    padding-bottom: 0;
+  }
+  .row-warn {
+    order: 6;
   }
 }

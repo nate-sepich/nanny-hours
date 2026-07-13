@@ -3,13 +3,16 @@ const weekLabel = document.getElementById('week-label');
 const loadStatus = document.getElementById('load-status');
 const saveStatus = document.getElementById('save-status');
 const weekTotalEl = document.getElementById('week-total');
+const weekTotalDecEl = document.getElementById('week-total-dec');
 const saveBtn = document.getElementById('save-week');
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const BREAK_CHOICES = [0, 15, 30, 45, 60, 90];
 
 let weekStart = startOfWeek(new Date()); // Sunday
 let config = {};
+let allEntries = []; // every entry from the sheet (used for "copy last week")
 let model = []; // 7 day objects: { date, dateObj, rows: [rowObj] }
 
 // ---------- date helpers ----------
@@ -30,12 +33,10 @@ function ymd(d) {
 }
 function weekRangeLabel() {
   const a = weekStart, b = addDays(weekStart, 6);
-  const left = `${MON[a.getMonth()]} ${a.getDate()}`;
-  const right = `${MON[b.getMonth()]} ${b.getDate()}, ${b.getFullYear()}`;
-  return `${left} – ${right}`;
+  return `${MON[a.getMonth()]} ${a.getDate()} – ${MON[b.getMonth()]} ${b.getDate()}, ${b.getFullYear()}`;
 }
 
-// ---------- model ----------
+// ---------- format helpers ----------
 function computeHours(start, end, brk) {
   if (!start || !end) return 0;
   const [sh, sm] = start.split(':').map(Number);
@@ -45,15 +46,47 @@ function computeHours(start, end, brk) {
   mins -= Number(brk || 0);
   return Math.max(0, mins / 60);
 }
+function fmtDur(h) {
+  const m = Math.round(h * 60);
+  const hh = Math.floor(m / 60);
+  const mm = m % 60;
+  if (hh && mm) return `${hh}h ${mm}m`;
+  if (hh) return `${hh}h`;
+  return `${mm}m`;
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function breakOptionsHtml(current) {
+  const cur = Number(current) || 0;
+  const vals = BREAK_CHOICES.slice();
+  if (!vals.includes(cur)) vals.push(cur);
+  vals.sort((a, b) => a - b);
+  return vals.map((v) =>
+    `<option value="${v}"${v === cur ? ' selected' : ''}>${v === 0 ? 'None' : v + 'm'}</option>`
+  ).join('');
+}
+
+// ---------- model ----------
 function blankRow() {
   return { id: null, startTime: '', endTime: '', breakMinutes: 0, notes: '', _deleted: false, orig: null };
 }
 function rowKey(r) {
   return [r.startTime, r.endTime, r.breakMinutes, r.notes].join('|');
 }
-function escapeHtml(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function rowFromEntry(e) {
+  const r = {
+    id: e.id,
+    startTime: e.startTime || '',
+    endTime: e.endTime || '',
+    breakMinutes: Number(e.breakMinutes) || 0,
+    notes: e.notes || '',
+    _deleted: false,
+    orig: null
+  };
+  r.orig = rowKey(r);
+  return r;
 }
 
 function buildModel(entries) {
@@ -61,30 +94,34 @@ function buildModel(entries) {
   for (let i = 0; i < 7; i++) {
     const dateObj = addDays(weekStart, i);
     const date = ymd(dateObj);
-    const rows = entries
-      .filter((e) => e.date === date)
-      .map((e) => {
-        const r = {
-          id: e.id,
-          startTime: e.startTime || '',
-          endTime: e.endTime || '',
-          breakMinutes: Number(e.breakMinutes) || 0,
-          notes: e.notes || '',
-          _deleted: false,
-          orig: null
-        };
-        r.orig = rowKey(r);
-        return r;
-      });
+    const rows = entries.filter((e) => e.date === date).map(rowFromEntry);
     if (rows.length === 0) rows.push(blankRow());
     model.push({ date, dateObj, rows });
   }
+}
+
+function weekHasSavedEntries() {
+  return model.some((day) => day.rows.some((r) => r.id));
+}
+function lastWeekHasEntries() {
+  const prevStart = addDays(weekStart, -7);
+  const dates = [];
+  for (let i = 0; i < 7; i++) dates.push(ymd(addDays(prevStart, i)));
+  return allEntries.some((e) => dates.indexOf(e.date) !== -1);
 }
 
 // ---------- render ----------
 function render() {
   weekLabel.textContent = weekRangeLabel();
   grid.innerHTML = '';
+
+  if (!weekHasSavedEntries() && lastWeekHasEntries()) {
+    const banner = document.createElement('button');
+    banner.className = 'copy-banner';
+    banner.textContent = '↻ Copy last week’s shifts into this week';
+    banner.addEventListener('click', copyLastWeek);
+    grid.appendChild(banner);
+  }
 
   model.forEach((day, di) => {
     const isToday = day.date === ymd(new Date());
@@ -96,7 +133,7 @@ function render() {
     head.innerHTML =
       `<div class="day-name"><span class="dow">${DOW[day.dateObj.getDay()]}</span>` +
       `<span class="day-date">${MON[day.dateObj.getMonth()]} ${day.dateObj.getDate()}</span></div>` +
-      `<div class="day-total"><span data-daytotal="${di}">0.00</span> hrs</div>`;
+      `<div class="day-total" data-daytotal="${di}">—</div>`;
     card.appendChild(head);
 
     const body = document.createElement('div');
@@ -128,14 +165,21 @@ function renderRow(di, ri, r) {
   row.dataset.di = di;
   row.dataset.ri = ri;
   row.innerHTML =
-    `<label class="fld"><span>Start</span><input type="time" value="${r.startTime}" data-f="startTime"></label>` +
-    `<label class="fld"><span>End</span><input type="time" value="${r.endTime}" data-f="endTime"></label>` +
-    `<label class="fld brk"><span>Break (min)</span><input type="number" min="0" step="5" value="${r.breakMinutes}" data-f="breakMinutes"></label>` +
+    `<div class="times">` +
+      `<label class="fld"><span>Start</span><input type="time" value="${r.startTime}" data-f="startTime"></label>` +
+      `<span class="dash">→</span>` +
+      `<label class="fld"><span>End</span><input type="time" value="${r.endTime}" data-f="endTime"></label>` +
+    `</div>` +
+    `<label class="fld brk"><span>Break</span><select data-f="breakMinutes">${breakOptionsHtml(r.breakMinutes)}</select></label>` +
     `<label class="fld notes"><span>Notes</span><input type="text" value="${escapeHtml(r.notes)}" data-f="notes" placeholder="optional"></label>` +
-    `<div class="row-hours"><span data-rowhours>0.00</span> hrs</div>` +
-    `<button class="remove" title="Remove shift" aria-label="Remove shift">✕</button>`;
+    `<div class="row-hours" data-rowhours>—</div>` +
+    `<div class="row-actions">` +
+      `<button class="icon-btn dup" title="Duplicate shift" aria-label="Duplicate shift">⧉</button>` +
+      `<button class="icon-btn remove" title="Remove shift" aria-label="Remove shift">✕</button>` +
+    `</div>` +
+    `<div class="row-warn" data-warn hidden>This shift adds up to 0 hours — check the start, end, and break.</div>`;
 
-  row.querySelectorAll('input').forEach((inp) => {
+  row.querySelectorAll('input, select').forEach((inp) => {
     inp.addEventListener('input', () => {
       const f = inp.dataset.f;
       r[f] = f === 'breakMinutes' ? Number(inp.value || 0) : inp.value;
@@ -143,11 +187,21 @@ function renderRow(di, ri, r) {
     });
   });
 
+  row.querySelector('.dup').addEventListener('click', () => {
+    const copy = blankRow();
+    copy.startTime = r.startTime;
+    copy.endTime = r.endTime;
+    copy.breakMinutes = r.breakMinutes;
+    copy.notes = r.notes;
+    model[di].rows.splice(ri + 1, 0, copy);
+    render();
+  });
+
   row.querySelector('.remove').addEventListener('click', () => {
     if (r.id) {
-      r._deleted = true; // existing entry — mark for deletion on save
+      r._deleted = true; // existing entry — delete on save
     } else {
-      model[di].rows.splice(ri, 1); // brand-new blank row — just drop it
+      model[di].rows.splice(ri, 1); // brand-new blank — just drop it
       if (model[di].rows.length === 0) model[di].rows.push(blankRow());
     }
     render();
@@ -162,16 +216,45 @@ function recalc() {
     let dayTotal = 0;
     day.rows.forEach((r, ri) => {
       if (r._deleted) return;
+      const hasTimes = r.startTime && r.endTime;
       const h = computeHours(r.startTime, r.endTime, r.breakMinutes);
       dayTotal += h;
-      const cell = grid.querySelector(`.shift-row[data-di="${di}"][data-ri="${ri}"] [data-rowhours]`);
-      if (cell) cell.textContent = h.toFixed(2);
+      const rowEl = grid.querySelector(`.shift-row[data-di="${di}"][data-ri="${ri}"]`);
+      if (!rowEl) return;
+      rowEl.querySelector('[data-rowhours]').textContent = hasTimes ? fmtDur(h) : '—';
+      const bad = hasTimes && h <= 0;
+      rowEl.classList.toggle('invalid', bad);
+      const warn = rowEl.querySelector('[data-warn]');
+      if (warn) warn.hidden = !bad;
     });
     weekTotal += dayTotal;
     const dt = grid.querySelector(`[data-daytotal="${di}"]`);
-    if (dt) dt.textContent = dayTotal.toFixed(2);
+    if (dt) dt.textContent = dayTotal > 0 ? fmtDur(dayTotal) : '—';
   });
-  weekTotalEl.textContent = weekTotal.toFixed(2);
+  weekTotalEl.textContent = fmtDur(weekTotal);
+  weekTotalDecEl.textContent = weekTotal > 0 ? `· ${weekTotal.toFixed(2)} hrs` : '';
+}
+
+// ---------- copy last week ----------
+function copyLastWeek() {
+  const prevStart = addDays(weekStart, -7);
+  for (let i = 0; i < 7; i++) {
+    const prevDate = ymd(addDays(prevStart, i));
+    const prev = allEntries.filter((e) => e.date === prevDate);
+    if (prev.length === 0) continue;
+    // Only fill days that don't already have real entries.
+    const hasReal = model[i].rows.some((r) => r.id);
+    if (hasReal) continue;
+    model[i].rows = prev.map((e) => {
+      const r = rowFromEntry(e);
+      r.id = null;   // new entries for this week
+      r.orig = null;
+      return r;
+    });
+  }
+  render();
+  saveStatus.textContent = 'Copied last week — review and Save.';
+  saveStatus.className = 'status';
 }
 
 // ---------- load / save ----------
@@ -181,7 +264,8 @@ async function loadWeek() {
   try {
     const data = await fetchData();
     config = data.config || {};
-    buildModel(data.entries || []);
+    allEntries = data.entries || [];
+    buildModel(allEntries);
     render();
     loadStatus.textContent = '';
   } catch (e) {
@@ -207,7 +291,7 @@ function computeOps() {
     day.rows.forEach((r) => {
       const hasTimes = r.startTime && r.endTime;
       if (hasTimes && computeHours(r.startTime, r.endTime, r.breakMinutes) <= 0) {
-        error = `${day.date}: end time must be after start time.`;
+        error = `${DOW[day.dateObj.getDay()]} ${MON[day.dateObj.getMonth()]} ${day.dateObj.getDate()}: a shift adds up to 0 hours. Fix or remove it.`;
       }
       if (!r.id) {
         if (!r._deleted && hasTimes) ops.push({ op: 'add', entry: toEntry(day.date, r) });
@@ -215,7 +299,7 @@ function computeOps() {
         ops.push({ op: 'delete', id: r.id });
       } else if (rowKey(r) !== r.orig) {
         if (hasTimes) ops.push({ op: 'update', id: r.id, entry: toEntry(day.date, r) });
-        else ops.push({ op: 'delete', id: r.id }); // cleared out an existing entry
+        else ops.push({ op: 'delete', id: r.id });
       }
     });
   });
