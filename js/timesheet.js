@@ -9,8 +9,9 @@ const saveBtn = document.getElementById('save-week');
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const BREAK_CHOICES = [0, 15, 30, 45, 60, 90];
+const DAYS_SHOWN = 5; // Mon–Fri; set to 7 to include the weekend
 
-let weekStart = startOfWeek(new Date()); // Sunday
+let weekStart = startOfWeek(new Date()); // Monday
 let config = {};
 let allEntries = []; // every entry from the sheet (used for "copy last week")
 let model = []; // 7 day objects: { date, dateObj, rows: [rowObj] }
@@ -18,7 +19,7 @@ let model = []; // 7 day objects: { date, dateObj, rows: [rowObj] }
 // ---------- date helpers ----------
 function startOfWeek(d) {
   const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  x.setDate(x.getDate() - x.getDay()); // back up to Sunday
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // back up to Monday
   return x;
 }
 function addDays(d, n) {
@@ -32,7 +33,7 @@ function ymd(d) {
     String(d.getDate()).padStart(2, '0');
 }
 function weekRangeLabel() {
-  const a = weekStart, b = addDays(weekStart, 6);
+  const a = weekStart, b = addDays(weekStart, DAYS_SHOWN - 1);
   return `${MON[a.getMonth()]} ${a.getDate()} – ${MON[b.getMonth()]} ${b.getDate()}, ${b.getFullYear()}`;
 }
 
@@ -91,7 +92,7 @@ function rowFromEntry(e) {
 
 function buildModel(entries) {
   model = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < DAYS_SHOWN; i++) {
     const dateObj = addDays(weekStart, i);
     const date = ymd(dateObj);
     const rows = entries.filter((e) => e.date === date).map(rowFromEntry);
@@ -106,7 +107,7 @@ function weekHasSavedEntries() {
 function lastWeekHasEntries() {
   const prevStart = addDays(weekStart, -7);
   const dates = [];
-  for (let i = 0; i < 7; i++) dates.push(ymd(addDays(prevStart, i)));
+  for (let i = 0; i < DAYS_SHOWN; i++) dates.push(ymd(addDays(prevStart, i)));
   return allEntries.some((e) => dates.indexOf(e.date) !== -1);
 }
 
@@ -238,7 +239,7 @@ function recalc() {
 // ---------- copy last week ----------
 function copyLastWeek() {
   const prevStart = addDays(weekStart, -7);
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < DAYS_SHOWN; i++) {
     const prevDate = ymd(addDays(prevStart, i));
     const prev = allEntries.filter((e) => e.date === prevDate);
     if (prev.length === 0) continue;
