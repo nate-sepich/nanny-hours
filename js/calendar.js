@@ -5,16 +5,19 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const NUM_SLOTS = ((END_HOUR - START_HOUR) * 60) / SLOT_MIN;
 
 const CATEGORIES = [
-  { id: 'active',   label: 'Active time',   color: '#e8683f' },
-  { id: 'lunch',    label: 'Lunch',         color: '#d99a06' },
-  { id: 'nap',      label: 'Nap / Rest',    color: '#6f5fa6' },
-  { id: 'park',     label: 'Park / Outing', color: '#2f8f6b' },
-  { id: 'outdoor',  label: 'Outdoor (home)', color: '#4f9e3f' },
-  { id: 'sensory',  label: 'Sensory play',  color: '#2f8fb0' },
-  { id: 'arts',     label: 'Arts / Crafts', color: '#cf4f86' },
-  { id: 'workbook', label: 'Workbook time', color: '#3767a8' },
-  { id: 'cleanup',  label: 'Cleanup',       color: '#74797f' },
-  { id: 'tv',       label: 'TV / Movie',    color: '#9c6b42' }
+  { id: 'active',   label: 'Active time',    color: '#e8683f' },
+  { id: 'lunch',    label: 'Lunch',          color: '#e0a018' },
+  { id: 'nap',      label: 'Nap / Rest',     color: '#6f5fa6' },
+  { id: 'park',     label: 'Park',           color: '#3f9d4f' },
+  { id: 'pool',     label: 'Pool',           color: '#1b9fd0' },
+  { id: 'science',  label: 'Science Center', color: '#12a89a' },
+  { id: 'zoo',      label: 'Zoo',            color: '#b5762e' },
+  { id: 'outdoor',  label: 'Outdoor (home)', color: '#7aa63f' },
+  { id: 'sensory',  label: 'Sensory play',   color: '#b455a6' },
+  { id: 'arts',     label: 'Arts / Crafts',  color: '#d64d7d' },
+  { id: 'workbook', label: 'Workbook time',  color: '#3767c4' },
+  { id: 'cleanup',  label: 'Cleanup',        color: '#757a80' },
+  { id: 'tv',       label: 'TV / Movie',     color: '#8a6a52' }
 ];
 const CAT_BY_ID = {};
 CATEGORIES.forEach((c) => { CAT_BY_ID[c.id] = c; });
