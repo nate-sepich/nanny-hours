@@ -4,11 +4,8 @@
  * Deploy as a Web App (Execute as: Me, Who has access: Anyone).
  * Run setup() once before deploying to create the Entries and Config sheets.
  *
- * Actions (POST):
- *   add    { entry }               → append one entry
- *   update { id, entry }           → overwrite one entry by id
- *   delete { id }                  → remove one entry by id
- *   batch  { ops: [ {op,...} ] }   → apply a list of add/update/delete ops
+ * If Config has a non-empty PIN, both reads (doGet) and writes (doPost)
+ * require ?pin=... / {pin:...}. The PIN is never returned in responses.
  */
 
 var ENTRIES_SHEET = 'Entries';
@@ -29,16 +26,29 @@ function setup() {
   config.appendRow(['Key', 'Value']);
   config.appendRow(['HourlyRate', 20]);
   config.appendRow(['NannyName', 'Nanny Name']);
+  config.appendRow(['NannyAddress', '']);
+  config.appendRow(['NannyPhone', '']);
+  config.appendRow(['NannyEmail', '']);
   config.appendRow(['EmployerName', 'Your Name']);
+  config.appendRow(['EmployerAddress', '']);
+  config.appendRow(['EmployerPhone', '']);
+  config.appendRow(['EmployerEmail', '']);
+  config.appendRow(['AgreementText', '']);
   config.appendRow(['PIN', '']);
   config.setFrozenRows(1);
 }
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var entries = readEntries_(ss.getSheetByName(ENTRIES_SHEET));
   var config = readConfig_(ss.getSheetByName(CONFIG_SHEET));
-  return jsonResponse_({ entries: entries, config: config });
+
+  var pin = (e && e.parameter && e.parameter.pin) || '';
+  if (config.PIN && String(pin) !== String(config.PIN)) {
+    return jsonResponse_({ error: pin ? 'Incorrect PIN' : 'PIN required' });
+  }
+
+  var entries = readEntries_(ss.getSheetByName(ENTRIES_SHEET));
+  return jsonResponse_({ entries: entries, config: stripPin_(config) });
 }
 
 function doPost(e) {
@@ -51,10 +61,11 @@ function doPost(e) {
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var entriesSheet = ss.getSheetByName(ENTRIES_SHEET);
-  var config = readConfig_(ss.getSheetByName(CONFIG_SHEET));
+  var configSheet = ss.getSheetByName(CONFIG_SHEET);
+  var config = readConfig_(configSheet);
 
   if (config.PIN && String(body.pin) !== String(config.PIN)) {
-    return jsonResponse_({ error: 'Incorrect PIN' });
+    return jsonResponse_({ error: body.pin ? 'Incorrect PIN' : 'PIN required' });
   }
 
   if (body.action === 'add') {
@@ -69,8 +80,11 @@ function doPost(e) {
     return jsonResponse_(deleteEntry_(entriesSheet, body.id));
   }
 
+  if (body.action === 'saveConfig') {
+    return jsonResponse_(saveConfig_(configSheet, body.config || {}));
+  }
+
   if (body.action === 'batch') {
-    // Lock so a whole-week save is applied without interleaving another request.
     var lock = LockService.getScriptLock();
     lock.waitLock(20000);
     try {
@@ -107,7 +121,6 @@ function addEntry_(sheet, entry) {
 function updateEntry_(sheet, id, entry) {
   var row = findRowById_(sheet, id);
   if (row < 0) return { error: 'Entry not found' };
-  // Columns 2..7 = Date, Start, End, Break, Hours, Notes. ID and Submitted At stay.
   sheet.getRange(row, 2, 1, 6).setValues([[
     entry.date, entry.startTime, entry.endTime, entry.breakMinutes, entry.hours, entry.notes
   ]]);
@@ -129,6 +142,18 @@ function findRowById_(sheet, id) {
     if (ids[i][0] === id) return i + 2;
   }
   return -1;
+}
+
+function saveConfig_(sheet, obj) {
+  var data = sheet.getDataRange().getValues();
+  var index = {};
+  for (var i = 1; i < data.length; i++) index[data[i][0]] = i + 1;
+  Object.keys(obj).forEach(function (k) {
+    if (k === 'PIN') return; // PIN is managed in the sheet only, never via the web form
+    if (index[k]) sheet.getRange(index[k], 2).setValue(obj[k]);
+    else sheet.appendRow([k, obj[k]]);
+  });
+  return { ok: true };
 }
 
 function readEntries_(sheet) {
@@ -158,6 +183,14 @@ function readConfig_(sheet) {
     config[data[i][0]] = data[i][1];
   }
   return config;
+}
+
+function stripPin_(config) {
+  var safe = {};
+  Object.keys(config).forEach(function (k) {
+    if (k !== 'PIN') safe[k] = config[k];
+  });
+  return safe;
 }
 
 function formatDate_(value) {

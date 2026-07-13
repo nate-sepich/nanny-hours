@@ -1,17 +1,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nanny Hours — Invoice</title>
-<link rel="stylesheet" href="css/style.css?v=6" />
+<title>Nanny Hours — Agreement</title>
+<link rel="stylesheet" href="css/style.css?v=7" />
 
 <nav>
   <span class="brand">Nanny Hours</span>
   <a href="index.html">Timesheet</a>
-  <a href="invoice.html" class="active">Invoices</a>
+  <a href="details.html">Details</a>
+  <a href="invoice.html" class="active">Agreement</a>
 </nav>
 
 <main>
   <div class="card no-print">
-    <h1>Generate invoice</h1>
+    <h1>Generate agreement</h1>
     <div class="row">
       <div>
         <label for="start-date">From</label>
@@ -27,15 +28,23 @@
   </div>
 
   <div class="card" id="invoice-card" style="display: none">
-    <div class="invoice-header">
-      <div>
-        <h2 id="employer-name"></h2>
-        <div class="muted">Invoice for hours worked</div>
+    <div class="doc-title">Nanny Timesheet &amp; Pay Agreement</div>
+    <div class="doc-period">Pay period: <strong id="period-range"></strong></div>
+
+    <div class="parties">
+      <div class="party">
+        <h3>Nanny</h3>
+        <div class="party-name" id="nanny-name"></div>
+        <div class="muted" id="nanny-address"></div>
+        <div class="muted" id="nanny-phone"></div>
+        <div class="muted" id="nanny-email"></div>
       </div>
-      <div>
-        <div class="muted">Billed to:</div>
-        <strong id="nanny-name"></strong>
-        <div class="muted" id="period-range"></div>
+      <div class="party">
+        <h3>Household</h3>
+        <div class="party-name" id="employer-name"></div>
+        <div class="muted" id="employer-address"></div>
+        <div class="muted" id="employer-phone"></div>
+        <div class="muted" id="employer-email"></div>
       </div>
     </div>
 
@@ -51,10 +60,25 @@
       <tbody id="invoice-body"></tbody>
     </table>
 
-    <div class="muted" style="margin-top: 1rem">
+    <div class="muted totals-line">
       Total hours: <strong id="total-hours"></strong> &times; $<span id="rate"></span>/hr
     </div>
-    <div class="invoice-total">Total: $<span id="total-pay"></span></div>
+    <div class="invoice-total">Total due: $<span id="total-pay"></span></div>
+
+    <div class="agreement" id="agreement-text"></div>
+
+    <div class="signatures">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-label">Nanny — <span id="sig-nanny-name"></span></div>
+        <div class="sig-date">Date: __________________</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-label">Household — <span id="sig-employer-name"></span></div>
+        <div class="sig-date">Date: __________________</div>
+      </div>
+    </div>
 
     <div class="actions no-print">
       <button class="secondary" id="print-btn">Print / Save as PDF</button>
@@ -62,6 +86,6 @@
   </div>
 </main>
 
-<script src="js/config.js?v=6"></script>
-<script src="js/api.js?v=6"></script>
-<script src="js/invoice.js?v=6"></script>
+<script src="js/config.js?v=7"></script>
+<script src="js/api.js?v=7"></script>
+<script src="js/invoice.js?v=7"></script>

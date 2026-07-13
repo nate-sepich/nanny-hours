@@ -536,3 +536,185 @@ td.num, th.num {
     order: 6;
   }
 }
+
+/* ---------- PIN unlock modal ---------- */
+.pin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 25, 22, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.pin-modal {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+}
+.pin-modal h2 {
+  margin: 0 0 0.4rem;
+}
+.pin-input {
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.7rem;
+  font-size: 1.3rem;
+  text-align: center;
+  letter-spacing: 0.3em;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+}
+.pin-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.pin-unlock {
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.7rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pin-unlock:hover {
+  background: var(--accent-dark);
+}
+
+/* ---------- details form ---------- */
+.card textarea {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  resize: vertical;
+}
+.card textarea:focus,
+.card input:focus,
+.card select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+#save-details {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#save-details:hover {
+  background: var(--accent-dark);
+}
+#save-details:disabled {
+  opacity: 0.6;
+}
+.card code {
+  background: #f0efe9;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+/* ---------- signable agreement doc ---------- */
+.doc-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+.doc-period {
+  color: var(--muted);
+  margin-top: 0.2rem;
+  margin-bottom: 1rem;
+}
+.doc-period strong {
+  color: var(--text);
+}
+.parties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.party {
+  flex: 1 1 220px;
+}
+.party h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+.party-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.15rem;
+}
+.party .muted {
+  line-height: 1.5;
+}
+.totals-line {
+  margin-top: 0.9rem;
+}
+.agreement {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.signatures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+.sig-block {
+  flex: 1 1 240px;
+}
+.sig-line {
+  border-bottom: 1.5px solid var(--text);
+  height: 2.4rem;
+}
+.sig-label {
+  margin-top: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.sig-date {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+@media print {
+  .parties, .agreement, .signatures, .sig-block, tr {
+    break-inside: avoid;
+  }
+  .doc-title {
+    font-size: 1.5rem;
+  }
+}
