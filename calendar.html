@@ -1,7 +1,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Nanny Hours — Schedule</title>
-<link rel="stylesheet" href="css/style.css?v=9" />
+<link rel="stylesheet" href="css/style.css?v=10" />
 
 <nav>
   <span class="brand">Nanny Hours</span>
@@ -12,30 +12,42 @@
 </nav>
 
 <main>
-  <div class="cal-head">
-    <h1>Weekly schedule</h1>
-    <p class="muted no-print">Pick an activity below, then click or drag across the grid to block out the day. This is the recurring weekly routine.</p>
+  <div class="cal-toolbar">
+    <div class="view-toggle" id="view-toggle">
+      <button id="view-week" class="active">Week</button>
+      <button id="view-month">Month</button>
+    </div>
+    <div class="nav-group">
+      <button class="week-nav" id="cal-prev" aria-label="Previous">‹</button>
+      <div class="cal-nav-label" id="cal-label">…</div>
+      <button class="week-nav" id="cal-next" aria-label="Next">›</button>
+      <button class="today-btn" id="cal-today">Today</button>
+    </div>
   </div>
 
   <div class="legend" id="legend"></div>
 
-  <div class="cal-actions no-print">
-    <button class="secondary" id="clear-all">Clear all</button>
+  <div class="cal-actions no-print" id="week-actions">
+    <span class="week-badge" id="week-badge"></span>
+    <button class="secondary" id="copy-prev">Copy previous week</button>
+    <button class="secondary" id="reset-default">Reset to default</button>
+    <button class="secondary" id="clear-all">Clear</button>
     <button class="secondary" id="print-cal">Print</button>
   </div>
 
   <div class="cal-wrap" id="grid"></div>
+  <div class="month-wrap" id="month-wrap" style="display: none"></div>
   <div id="load-status" class="muted"></div>
 </main>
 
-<div class="savebar">
+<div class="savebar" id="savebar">
   <div class="sel-indicator" id="sel-indicator"></div>
   <div class="savebar-right">
     <span id="save-status" class="status"></span>
-    <button id="save-cal">Save schedule</button>
+    <button id="save-cal">Save week</button>
   </div>
 </div>
 
-<script src="js/config.js?v=9"></script>
-<script src="js/api.js?v=9"></script>
-<script src="js/calendar.js?v=9"></script>
+<script src="js/config.js?v=10"></script>
+<script src="js/api.js?v=10"></script>
+<script src="js/calendar.js?v=10"></script>
