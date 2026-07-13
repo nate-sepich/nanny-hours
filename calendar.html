@@ -1,0 +1,41 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nanny Hours — Schedule</title>
+<link rel="stylesheet" href="css/style.css?v=8" />
+
+<nav>
+  <span class="brand">Nanny Hours</span>
+  <a href="index.html">Timesheet</a>
+  <a href="calendar.html" class="active">Schedule</a>
+  <a href="details.html">Details</a>
+  <a href="invoice.html">Agreement</a>
+</nav>
+
+<main>
+  <div class="cal-head">
+    <h1>Weekly schedule</h1>
+    <p class="muted no-print">Pick an activity below, then click or drag across the grid to block out the day. This is the recurring weekly routine.</p>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="cal-actions no-print">
+    <button class="secondary" id="clear-all">Clear all</button>
+    <button class="secondary" id="print-cal">Print</button>
+  </div>
+
+  <div class="cal-wrap" id="grid"></div>
+  <div id="load-status" class="muted"></div>
+</main>
+
+<div class="savebar">
+  <div class="sel-indicator" id="sel-indicator"></div>
+  <div class="savebar-right">
+    <span id="save-status" class="status"></span>
+    <button id="save-cal">Save schedule</button>
+  </div>
+</div>
+
+<script src="js/config.js?v=8"></script>
+<script src="js/api.js?v=8"></script>
+<script src="js/calendar.js?v=8"></script>

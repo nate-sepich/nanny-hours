@@ -718,3 +718,126 @@ td.num, th.num {
     font-size: 1.5rem;
   }
 }
+
+/* ---------- schedule / calendar ---------- */
+.cal-head h1 { margin-bottom: 0.25rem; }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0 1rem;
+}
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.legend-chip.active {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.legend-chip .swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.legend-chip .erase-swatch {
+  background: repeating-linear-gradient(45deg, #fff, #fff 3px, #ddd 3px, #ddd 6px);
+  border: 1px solid var(--border-strong);
+}
+.cal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.cal-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+table.cal {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 460px;
+  table-layout: fixed;
+  user-select: none;
+}
+table.cal th {
+  padding: 0.5rem 0.2rem;
+  font-size: 0.8rem;
+  color: var(--accent-dark);
+  background: #fbfbfa;
+  border-bottom: 1px solid var(--border-strong);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+table.cal th.time-col { width: 68px; }
+table.cal .time-label {
+  width: 68px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: right;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+  vertical-align: top;
+}
+table.cal td.slot {
+  height: 30px;
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid #f0efe9;
+  cursor: pointer;
+  touch-action: none;
+  overflow: hidden;
+  vertical-align: top;
+}
+table.cal tr.hour-start td {
+  border-top: 1px solid var(--border-strong);
+}
+table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
+.slot-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #fff;
+  padding: 1px 4px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.sel-indicator {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.sel-indicator strong { color: var(--text); }
+#save-cal {
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#save-cal:hover { background: var(--accent-dark); }
+#save-cal:disabled { opacity: 0.6; }
+
+@media print {
+  .legend { margin-top: 0; }
+  .cal-wrap { border: none; box-shadow: none; overflow: visible; }
+  table.cal { min-width: 0; }
+  table.cal td.slot { border-left: 1px solid #ccc; }
+}
