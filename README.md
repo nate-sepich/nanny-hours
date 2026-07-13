@@ -4,8 +4,9 @@ A small static site for tracking a nanny's hours and generating printable
 invoices for tax records. Hosted on GitHub Pages; data lives in a Google
 Sheet via a Google Apps Script "API".
 
-- `index.html` — the nanny logs hours here (start/end time, auto-computed
-  total, notes). Also shows/deletes recent entries.
+- `index.html` — a weekly timesheet. Navigate by week, add one or more
+  shifts per day (start/end time, break, notes) with live per-day and weekly
+  hour totals, edit or remove past entries, and save the whole week at once.
 - `invoice.html` — pick a date range, see itemized hours and total pay,
   print/save as PDF.
 

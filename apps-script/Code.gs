@@ -1,11 +1,14 @@
 /**
  * Nanny Hours — Google Apps Script backend.
  *
- * Deploy this as a Web App (Execute as: Me, Access: Anyone with the link).
- * The deployed URL is the API the static site talks to.
+ * Deploy as a Web App (Execute as: Me, Who has access: Anyone).
+ * Run setup() once before deploying to create the Entries and Config sheets.
  *
- * Run setup() once from the Apps Script editor before deploying to create
- * the Entries and Config sheets with headers and default values.
+ * Actions (POST):
+ *   add    { entry }               → append one entry
+ *   update { id, entry }           → overwrite one entry by id
+ *   delete { id }                  → remove one entry by id
+ *   batch  { ops: [ {op,...} ] }   → apply a list of add/update/delete ops
  */
 
 var ENTRIES_SHEET = 'Entries';
@@ -29,18 +32,12 @@ function setup() {
   config.appendRow(['EmployerName', 'Your Name']);
   config.appendRow(['PIN', '']);
   config.setFrozenRows(1);
-
-  // Default sheet Sheet1 is unused; leave it alone in case other things reference it.
 }
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var entriesSheet = ss.getSheetByName(ENTRIES_SHEET);
-  var configSheet = ss.getSheetByName(CONFIG_SHEET);
-
-  var entries = readEntries_(entriesSheet);
-  var config = readConfig_(configSheet);
-
+  var entries = readEntries_(ss.getSheetByName(ENTRIES_SHEET));
+  var config = readConfig_(ss.getSheetByName(CONFIG_SHEET));
   return jsonResponse_({ entries: entries, config: config });
 }
 
@@ -54,41 +51,84 @@ function doPost(e) {
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var entriesSheet = ss.getSheetByName(ENTRIES_SHEET);
-  var configSheet = ss.getSheetByName(CONFIG_SHEET);
-  var config = readConfig_(configSheet);
+  var config = readConfig_(ss.getSheetByName(CONFIG_SHEET));
 
-  if (config.PIN && body.pin !== config.PIN) {
+  if (config.PIN && String(body.pin) !== String(config.PIN)) {
     return jsonResponse_({ error: 'Incorrect PIN' });
   }
 
   if (body.action === 'add') {
-    var entry = body.entry;
-    var id = Utilities.getUuid();
-    entriesSheet.appendRow([
-      id,
-      entry.date,
-      entry.startTime,
-      entry.endTime,
-      entry.breakMinutes,
-      entry.hours,
-      entry.notes,
-      new Date().toISOString()
-    ]);
-    return jsonResponse_({ ok: true, id: id });
+    return jsonResponse_({ ok: true, id: addEntry_(entriesSheet, body.entry) });
+  }
+
+  if (body.action === 'update') {
+    return jsonResponse_(updateEntry_(entriesSheet, body.id, body.entry));
   }
 
   if (body.action === 'delete') {
-    var data = entriesSheet.getDataRange().getValues();
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][0] === body.id) {
-        entriesSheet.deleteRow(i + 1);
-        return jsonResponse_({ ok: true });
+    return jsonResponse_(deleteEntry_(entriesSheet, body.id));
+  }
+
+  if (body.action === 'batch') {
+    // Lock so a whole-week save is applied without interleaving another request.
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      var results = [];
+      var ops = body.ops || [];
+      for (var k = 0; k < ops.length; k++) {
+        var op = ops[k];
+        if (op.op === 'add') {
+          results.push({ op: 'add', id: addEntry_(entriesSheet, op.entry) });
+        } else if (op.op === 'update') {
+          results.push({ op: 'update', result: updateEntry_(entriesSheet, op.id, op.entry) });
+        } else if (op.op === 'delete') {
+          results.push({ op: 'delete', result: deleteEntry_(entriesSheet, op.id) });
+        }
       }
+      return jsonResponse_({ ok: true, results: results });
+    } finally {
+      lock.releaseLock();
     }
-    return jsonResponse_({ error: 'Entry not found' });
   }
 
   return jsonResponse_({ error: 'Unknown action' });
+}
+
+function addEntry_(sheet, entry) {
+  var id = Utilities.getUuid();
+  sheet.appendRow([
+    id, entry.date, entry.startTime, entry.endTime,
+    entry.breakMinutes, entry.hours, entry.notes, new Date().toISOString()
+  ]);
+  return id;
+}
+
+function updateEntry_(sheet, id, entry) {
+  var row = findRowById_(sheet, id);
+  if (row < 0) return { error: 'Entry not found' };
+  // Columns 2..7 = Date, Start, End, Break, Hours, Notes. ID and Submitted At stay.
+  sheet.getRange(row, 2, 1, 6).setValues([[
+    entry.date, entry.startTime, entry.endTime, entry.breakMinutes, entry.hours, entry.notes
+  ]]);
+  return { ok: true };
+}
+
+function deleteEntry_(sheet, id) {
+  var row = findRowById_(sheet, id);
+  if (row < 0) return { error: 'Entry not found' };
+  sheet.deleteRow(row);
+  return { ok: true };
+}
+
+function findRowById_(sheet, id) {
+  var last = sheet.getLastRow();
+  if (last < 2) return -1;
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) {
+    if (ids[i][0] === id) return i + 2;
+  }
+  return -1;
 }
 
 function readEntries_(sheet) {
@@ -128,8 +168,6 @@ function formatDate_(value) {
 }
 
 function formatTime_(value) {
-  // Sheets auto-converts a "HH:mm" string into a time-of-day Date. Format it
-  // back to "HH:mm" in the sheet's timezone so the site gets a clean string.
   if (Object.prototype.toString.call(value) === '[object Date]') {
     return Utilities.formatDate(value, Session.getScriptTimeZone(), 'HH:mm');
   }

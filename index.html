@@ -1,66 +1,36 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nanny Hours — Log Time</title>
+<title>Nanny Hours — Timesheet</title>
 <link rel="stylesheet" href="css/style.css" />
 
 <nav>
   <span class="brand">Nanny Hours</span>
-  <a href="index.html" class="active">Log Hours</a>
+  <a href="index.html" class="active">Timesheet</a>
   <a href="invoice.html">Invoices</a>
 </nav>
 
 <main>
-  <div class="card">
-    <h1>Log your hours</h1>
-    <form id="entry-form">
-      <label for="date">Date</label>
-      <input type="date" id="date" required />
-
-      <div class="row">
-        <div>
-          <label for="start-time">Start time</label>
-          <input type="time" id="start-time" required />
-        </div>
-        <div>
-          <label for="end-time">End time</label>
-          <input type="time" id="end-time" required />
-        </div>
-      </div>
-
-      <label for="break-minutes">Break (minutes)</label>
-      <input type="number" id="break-minutes" min="0" step="5" value="0" />
-
-      <label for="notes">Notes (optional)</label>
-      <input type="text" id="notes" placeholder="e.g. picked up from school" />
-
-      <label for="pin">PIN (only if one has been set)</label>
-      <input type="password" id="pin" autocomplete="off" />
-
-      <div class="computed-hours">Hours worked: <strong id="computed-hours">0.00</strong></div>
-
-      <button type="submit">Submit hours</button>
-      <div id="form-status" class="status"></div>
-    </form>
+  <div class="week-bar">
+    <button class="week-nav" id="prev-week" aria-label="Previous week">‹</button>
+    <div class="week-label" id="week-label">Loading…</div>
+    <button class="week-nav" id="next-week" aria-label="Next week">›</button>
+    <button class="today-btn" id="this-week">This week</button>
   </div>
 
-  <div class="card">
-    <h2>Recent entries</h2>
-    <div id="entries-status" class="muted">Loading…</div>
-    <table id="entries-table" style="display: none">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th class="num">Hours</th>
-          <th>Notes</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="entries-body"></tbody>
-    </table>
-  </div>
+  <div id="grid"></div>
+  <div id="load-status" class="muted"></div>
 </main>
+
+<div class="savebar">
+  <div class="week-total-wrap">
+    Week total <strong id="week-total">0.00</strong> hrs
+  </div>
+  <div class="savebar-right">
+    <span id="save-status" class="status"></span>
+    <button id="save-week">Save week</button>
+  </div>
+</div>
 
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
-<script src="js/entry.js"></script>
+<script src="js/timesheet.js"></script>
