@@ -100,8 +100,8 @@ function readEntries_(sheet) {
     rows.push({
       id: row[0],
       date: formatDate_(row[1]),
-      startTime: row[2],
-      endTime: row[3],
+      startTime: formatTime_(row[2]),
+      endTime: formatTime_(row[3]),
       breakMinutes: row[4],
       hours: row[5],
       notes: row[6],
@@ -123,6 +123,15 @@ function readConfig_(sheet) {
 function formatDate_(value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
     return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return value;
+}
+
+function formatTime_(value) {
+  // Sheets auto-converts a "HH:mm" string into a time-of-day Date. Format it
+  // back to "HH:mm" in the sheet's timezone so the site gets a clean string.
+  if (Object.prototype.toString.call(value) === '[object Date]') {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'HH:mm');
   }
   return value;
 }
