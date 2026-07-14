@@ -25,7 +25,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
-  padding-bottom: 5.5rem;
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   line-height: 1.4;
 }
 
@@ -313,6 +313,7 @@ main {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 1.1rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.97);
   border-top: 1px solid var(--border-strong);
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
@@ -499,7 +500,87 @@ td.num, th.num {
 }
 
 /* ---------- small screens ---------- */
-@media (max-width: 560px) {
+@media (max-width: 600px) {
+  /* nav: brand on its own line so 4 links + brand never overflow at 375px */
+  nav {
+    flex-wrap: wrap;
+    gap: 0.15rem 1.1rem;
+    padding: 0.55rem 1rem 0.45rem;
+  }
+  nav .brand {
+    flex-basis: 100%;
+    font-size: 1rem;
+  }
+  nav a {
+    padding: 0.35rem 0; /* taller tap target */
+  }
+
+  .week-label {
+    font-size: 1.05rem;
+  }
+
+  /* sticky savebar: keep total + button on one line without overflow */
+  .savebar {
+    gap: 0.6rem;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+  .week-total-wrap {
+    font-size: 0.9rem;
+  }
+  .week-total-wrap strong {
+    font-size: 1.2rem;
+  }
+  .sel-indicator {
+    font-size: 0.85rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .savebar-right {
+    flex-shrink: 0;
+    gap: 0.6rem;
+  }
+  #save-week, #save-cal {
+    padding: 0.7rem 1.1rem;
+  }
+
+  /* comfortable tap targets (~40px) */
+  .today-btn,
+  button.secondary,
+  .view-toggle button {
+    min-height: 40px;
+  }
+  .add-shift {
+    min-height: 40px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.92rem;
+  }
+  .legend-chip {
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* iOS Safari zooms the page on focus if a control is under 16px */
+  .lunch-input {
+    font-size: 16px;
+    min-height: 40px;
+    padding: 0.45rem 0.4rem;
+  }
+
+  /* details + agreement forms: stack side-by-side fields */
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* agreement line-item table: tighter cells so it fits without pushing the page */
+  th, td {
+    padding: 0.45rem 0.3rem;
+  }
+
   .times {
     flex: 1 1 100%;
     order: 1;
@@ -756,11 +837,20 @@ td.num, th.num {
 }
 .cal-actions {
   display: flex;
+  flex-wrap: wrap; /* five buttons + badge must not push the page sideways on phones */
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
-.cal-wrap {
+.cal-scroll {
+  /* single horizontal scroller so the lunch row stays aligned under the day
+     columns of the schedule grid when scrolled on narrow screens */
   overflow-x: auto;
+}
+.cal-scroll > .cal-wrap,
+.cal-scroll > .lunch-wrap {
+  min-width: 460px; /* matches table.cal min-width */
+}
+.cal-wrap {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--card-bg);
@@ -881,6 +971,9 @@ table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
 
 @media print {
   .legend { margin-top: 0; }
+  .cal-scroll { overflow: visible; }
+  .cal-scroll > .cal-wrap,
+  .cal-scroll > .lunch-wrap { min-width: 0; }
   .cal-wrap { border: none; box-shadow: none; overflow: visible; }
   table.cal { min-width: 0; }
   table.cal td.slot { border-left: 1px solid #ccc; }
@@ -1003,7 +1096,11 @@ table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
 }
 .md-seg { flex: 1 1 0; }
 
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   .cal-nav-label { min-width: 7rem; font-size: 0.92rem; }
   .md-strip { height: 84px; }
+  /* month grid fits a 375px screen without internal scroll; cells stay tappable */
+  .month-head, .month-row { min-width: 0; }
+  /* slightly taller paint slots for finger precision */
+  table.cal td.slot { height: 34px; }
 }
