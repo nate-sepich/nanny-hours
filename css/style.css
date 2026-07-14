@@ -817,6 +817,50 @@ table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
   text-overflow: ellipsis;
   overflow: hidden;
 }
+/* ---------- lunch row ---------- */
+.lunch-wrap {
+  margin-top: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  padding: 0.5rem 0.6rem 0.65rem;
+}
+.lunch-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  margin: 0 0 0.35rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.lunch-row {
+  display: grid;
+  grid-template-columns: 68px repeat(5, 1fr);
+  gap: 0.35rem;
+}
+.lunch-cell { min-width: 0; }
+.lunch-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.82rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: #fff;
+}
+.lunch-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.post-school-notice {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  background: var(--accent-soft, #eee9df);
+  color: var(--accent-dark);
+}
 .sel-indicator {
   font-size: 0.95rem;
   color: var(--muted);

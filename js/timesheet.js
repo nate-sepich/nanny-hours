@@ -15,6 +15,7 @@ let weekStart = startOfWeek(new Date()); // Monday
 let config = {};
 let allEntries = []; // every entry from the sheet (used for "copy last week")
 let model = []; // 7 day objects: { date, dateObj, rows: [rowObj] }
+let hourlyRate = 0; // current hourly rate, captured from config on each load
 
 // ---------- date helpers ----------
 function startOfWeek(d) {
@@ -71,7 +72,7 @@ function breakOptionsHtml(current) {
 
 // ---------- model ----------
 function blankRow() {
-  return { id: null, startTime: '', endTime: '', breakMinutes: 0, notes: '', _deleted: false, orig: null };
+  return { id: null, startTime: '', endTime: '', breakMinutes: 0, notes: '', rate: '', _deleted: false, orig: null };
 }
 function rowKey(r) {
   return [r.startTime, r.endTime, r.breakMinutes, r.notes].join('|');
@@ -83,6 +84,7 @@ function rowFromEntry(e) {
     endTime: e.endTime || '',
     breakMinutes: Number(e.breakMinutes) || 0,
     notes: e.notes || '',
+    rate: e.rate,
     _deleted: false,
     orig: null
   };
@@ -265,6 +267,7 @@ async function loadWeek() {
   try {
     const data = await fetchData();
     config = data.config || {};
+    hourlyRate = Number(config.HourlyRate) || 0;
     allEntries = data.entries || [];
     buildModel(allEntries);
     render();
@@ -281,7 +284,8 @@ function toEntry(date, r) {
     endTime: r.endTime,
     breakMinutes: Number(r.breakMinutes || 0),
     hours: Number(computeHours(r.startTime, r.endTime, r.breakMinutes).toFixed(2)),
-    notes: r.notes || ''
+    notes: r.notes || '',
+    rate: (r.id ? (r.rate !== '' && r.rate != null ? Number(r.rate) : hourlyRate) : hourlyRate)
   };
 }
 

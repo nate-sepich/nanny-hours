@@ -44,9 +44,13 @@ async function generateInvoice() {
       return;
     }
 
-    const rate = Number(config.HourlyRate || 0);
+    const defaultRate = Number(config.HourlyRate || 0);
+    const effRateOf = (e) => (e.rate !== '' && e.rate != null) ? Number(e.rate) : defaultRate;
     const totalHours = filtered.reduce((sum, e) => sum + Number(e.hours), 0);
-    const totalPay = totalHours * rate;
+    const totalPay = filtered.reduce((sum, e) => sum + Number(e.hours) * effRateOf(e), 0);
+    const rates = filtered.map(effRateOf);
+    const singleRate = rates.every((r) => r === rates[0]) ? rates[0] : null;
+    const rate = singleRate != null ? singleRate : defaultRate;
     const periodLabel = `${start} to ${end}`;
 
     // Parties
@@ -74,8 +78,14 @@ async function generateInvoice() {
       invoiceBody.appendChild(tr);
     });
 
-    document.getElementById('total-hours').textContent = totalHours.toFixed(2);
-    document.getElementById('rate').textContent = money(rate);
+    const totalsLineEl = document.getElementById('rate').closest('.totals-line');
+    if (singleRate != null) {
+      totalsLineEl.innerHTML =
+        `Total hours: <strong id="total-hours">${totalHours.toFixed(2)}</strong> &times; $<span id="rate">${money(singleRate)}</span>/hr`;
+    } else {
+      totalsLineEl.innerHTML =
+        `Total hours: <strong id="total-hours">${totalHours.toFixed(2)}</strong> (multiple rates)`;
+    }
     document.getElementById('total-pay').textContent = money(totalPay);
 
     // Agreement statement with placeholders filled in

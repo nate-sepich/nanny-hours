@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Nanny Hours — Schedule</title>
-<link rel="stylesheet" href="css/style.css?v=11" />
+<link rel="stylesheet" href="css/style.css?v=12" />
 
 <nav>
   <span class="brand">Nanny Hours</span>
@@ -33,13 +33,31 @@
     <span class="week-badge" id="week-badge"></span>
     <button class="secondary" id="copy-prev">Copy previous week</button>
     <button class="secondary" id="reset-default">Reset to default</button>
+    <button class="secondary" id="save-default">Save as default</button>
     <button class="secondary" id="clear-all">Clear</button>
     <button class="secondary" id="print-cal">Print</button>
   </div>
 
   <div class="cal-wrap" id="grid"></div>
+  <div class="lunch-wrap" id="lunch-wrap"></div>
   <div class="month-wrap" id="month-wrap" style="display: none"></div>
+  <div class="post-school-notice muted" id="post-school-notice" style="display: none">
+    This is the last week before school starts — the schedule ends at school start (Aug 24).
+  </div>
   <div id="load-status" class="muted"></div>
+
+  <datalist id="lunch-options">
+    <option value="Mac &amp; cheese"></option>
+    <option value="Spaghetti"></option>
+    <option value="PB&amp;J"></option>
+    <option value="Grilled cheese"></option>
+    <option value="Quesadilla"></option>
+    <option value="Chicken nuggets"></option>
+    <option value="Ravioli"></option>
+    <option value="Turkey sandwich"></option>
+    <option value="Yogurt &amp; fruit"></option>
+    <option value="Soup"></option>
+  </datalist>
 </main>
 
 <div class="savebar" id="savebar">
@@ -50,6 +68,6 @@
   </div>
 </div>
 
-<script src="js/config.js?v=11"></script>
-<script src="js/api.js?v=11"></script>
-<script src="js/calendar.js?v=11"></script>
+<script src="js/config.js?v=12"></script>
+<script src="js/api.js?v=12"></script>
+<script src="js/calendar.js?v=12"></script>
