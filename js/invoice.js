@@ -67,10 +67,10 @@ async function generateInvoice() {
     filtered.forEach((entry) => {
       const tr = document.createElement('tr');
       tr.innerHTML =
-        `<td>${entry.date}</td>` +
-        `<td>${entry.startTime}–${entry.endTime}</td>` +
+        `<td>${escapeHtml(entry.date)}</td>` +
+        `<td>${escapeHtml(entry.startTime)}–${escapeHtml(entry.endTime)}</td>` +
         `<td class="num">${Number(entry.hours).toFixed(2)}</td>` +
-        `<td>${entry.notes || ''}</td>`;
+        `<td>${escapeHtml(entry.notes)}</td>`;
       invoiceBody.appendChild(tr);
     });
 

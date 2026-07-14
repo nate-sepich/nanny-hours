@@ -1,3 +1,9 @@
+// Shared across all pages. Escape untrusted strings before inserting into HTML.
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 const PIN_KEY = 'nannyHoursPin';
 
 function getPin() {
@@ -44,7 +50,9 @@ async function fetchData() {
     const url = APPS_SCRIPT_URL + '?pin=' + encodeURIComponent(getPin());
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to load data');
-    const data = await res.json();
+    let data;
+    try { data = await res.json(); }
+    catch (e) { throw new Error('The server returned an unexpected response — please retry.'); }
     if (needsPin(data.error)) {
       const p = await promptPin(data.error === 'Incorrect PIN');
       setPin(p);
