@@ -557,10 +557,25 @@ td.num, th.num {
     padding: 0.55rem 0.9rem;
     font-size: 0.92rem;
   }
+  /* legend: one swipeable row instead of a tall wall of chips */
+  .legend {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 2px 1rem 4px; /* room for the active chip's focus ring */
+  }
+  .legend::-webkit-scrollbar {
+    display: none;
+  }
   .legend-chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
     min-height: 40px;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.82rem;
   }
 
   /* iOS Safari zooms the page on focus if a control is under 16px */
@@ -805,15 +820,15 @@ td.num, th.num {
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.5rem 0 1rem;
+  gap: 0.3rem;
+  margin: 0 0 0.6rem;
 }
 .legend-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.6rem;
-  font-size: 0.82rem;
+  gap: 0.35rem;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text);
   background: var(--card-bg);
@@ -823,11 +838,12 @@ td.num, th.num {
 }
 .legend-chip.active {
   border-color: var(--accent-dark);
+  background: var(--accent-soft);
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 .legend-chip .swatch {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 4px;
   display: inline-block;
 }
@@ -837,9 +853,64 @@ td.num, th.num {
 }
 .cal-actions {
   display: flex;
-  flex-wrap: wrap; /* five buttons + badge must not push the page sideways on phones */
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ---------- "More" actions menu ---------- */
+.more-menu {
+  position: relative;
+}
+.more-menu summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+  background: var(--card-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.more-menu summary::-webkit-details-marker {
+  display: none;
+}
+.more-menu summary:hover,
+.more-menu[open] summary {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.more-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 215px;
+  padding: 0.4rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+.more-panel button.secondary {
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+}
+.more-panel button.secondary:hover {
+  background: var(--accent-soft);
 }
 .cal-scroll {
   /* single horizontal scroller so the lunch row stays aligned under the day
@@ -985,8 +1056,8 @@ table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 0.9rem;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 .view-toggle {
   display: inline-flex;
@@ -1097,7 +1168,11 @@ table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
 .md-seg { flex: 1 1 0; }
 
 @media (max-width: 600px) {
-  .cal-nav-label { min-width: 7rem; font-size: 0.92rem; }
+  .cal-nav-label { min-width: 0; flex: 1; font-size: 0.92rem; }
+  /* toolbar: toggle row + nav row, both tight */
+  .nav-group { flex: 1 1 100%; }
+  .view-toggle button { padding: 0.45rem 0.8rem; font-size: 0.85rem; }
+  .more-panel { min-width: 200px; }
   .md-strip { height: 84px; }
   /* month grid fits a 375px screen without internal scroll; cells stay tappable */
   .month-head, .month-row { min-width: 0; }

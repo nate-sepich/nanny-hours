@@ -2,40 +2,79 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Nanny Hours — Timesheet</title>
-<link rel="stylesheet" href="css/style.css?v=13" />
+<title>Nanny Hours — Schedule</title>
+<link rel="stylesheet" href="css/style.css?v=14" />
 
 <nav>
   <span class="brand">Nanny Hours</span>
-  <a href="index.html" class="active">Timesheet</a>
-  <a href="calendar.html">Schedule</a>
+  <a href="timesheet.html">Timesheet</a>
+  <a href="index.html" class="active">Schedule</a>
   <a href="details.html">Details</a>
   <a href="invoice.html">Agreement</a>
 </nav>
 
 <main>
-  <div class="week-bar">
-    <button class="week-nav" id="prev-week" aria-label="Previous week">‹</button>
-    <div class="week-label" id="week-label">Loading…</div>
-    <button class="week-nav" id="next-week" aria-label="Next week">›</button>
-    <button class="today-btn" id="this-week">This week</button>
+  <div class="cal-toolbar">
+    <div class="view-toggle" id="view-toggle">
+      <button id="view-week" class="active">Week</button>
+      <button id="view-month">Month</button>
+    </div>
+    <div class="nav-group">
+      <button class="week-nav" id="cal-prev" aria-label="Previous">‹</button>
+      <div class="cal-nav-label" id="cal-label">…</div>
+      <button class="week-nav" id="cal-next" aria-label="Next">›</button>
+      <button class="today-btn" id="cal-today">Today</button>
+    </div>
   </div>
 
-  <div id="grid"></div>
+  <div class="legend" id="legend"></div>
+
+  <div class="cal-actions no-print" id="week-actions">
+    <span class="week-badge" id="week-badge"></span>
+    <details class="more-menu" id="more-menu">
+      <summary aria-label="More actions">⋯ More</summary>
+      <div class="more-panel">
+        <button class="secondary" id="copy-prev">Copy previous week</button>
+        <button class="secondary" id="reset-default">Reset to default</button>
+        <button class="secondary" id="save-default">Save as default</button>
+        <button class="secondary" id="clear-all">Clear</button>
+        <button class="secondary" id="print-cal">Print</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="cal-scroll">
+    <div class="cal-wrap" id="grid"></div>
+    <div class="lunch-wrap" id="lunch-wrap"></div>
+  </div>
+  <div class="month-wrap" id="month-wrap" style="display: none"></div>
+  <div class="post-school-notice muted" id="post-school-notice" style="display: none">
+    This is the last week before school starts — the schedule ends at school start (Aug 24).
+  </div>
   <div id="load-status" class="muted"></div>
+
+  <datalist id="lunch-options">
+    <option value="Mac &amp; cheese"></option>
+    <option value="Spaghetti"></option>
+    <option value="PB&amp;J"></option>
+    <option value="Grilled cheese"></option>
+    <option value="Quesadilla"></option>
+    <option value="Chicken nuggets"></option>
+    <option value="Ravioli"></option>
+    <option value="Turkey sandwich"></option>
+    <option value="Yogurt &amp; fruit"></option>
+    <option value="Soup"></option>
+  </datalist>
 </main>
 
-<div class="savebar">
-  <div class="week-total-wrap">
-    Week total <strong id="week-total">0h</strong>
-    <span class="wt-decimal" id="week-total-dec"></span>
-  </div>
+<div class="savebar" id="savebar">
+  <div class="sel-indicator" id="sel-indicator"></div>
   <div class="savebar-right">
     <span id="save-status" class="status"></span>
-    <button id="save-week">Save week</button>
+    <button id="save-cal">Save week</button>
   </div>
 </div>
 
-<script src="js/config.js?v=13"></script>
-<script src="js/api.js?v=13"></script>
-<script src="js/timesheet.js?v=13"></script>
+<script src="js/config.js?v=14"></script>
+<script src="js/api.js?v=14"></script>
+<script src="js/calendar.js?v=14"></script>

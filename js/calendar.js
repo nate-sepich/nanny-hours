@@ -423,6 +423,17 @@ viewMonthBtn.addEventListener('click', () => {
 });
 
 // ---------- week actions ----------
+// "More" dropdown: close after picking an action or tapping outside.
+const moreMenu = document.getElementById('more-menu');
+if (moreMenu) {
+  moreMenu.addEventListener('click', (e) => {
+    if (e.target.closest && e.target.closest('.more-panel button')) moreMenu.removeAttribute('open');
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (moreMenu.open && !moreMenu.contains(e.target)) moreMenu.removeAttribute('open');
+  });
+}
+
 document.getElementById('copy-prev').addEventListener('click', () => {
   const prevWs = ymd(addDays(weekStart, -7));
   const src = schedulesByWeek[prevWs] || template || DEFAULT_TEMPLATE;
