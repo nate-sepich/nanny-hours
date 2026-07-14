@@ -77,9 +77,12 @@ const viewWeekBtn = document.getElementById('view-week');
 const viewMonthBtn = document.getElementById('view-month');
 const lunchWrap = document.getElementById('lunch-wrap');
 const postSchoolNotice = document.getElementById('post-school-notice');
+const editWeekBtn = document.getElementById('edit-week');
+const doneEditBtn = document.getElementById('done-edit');
 
 // ---------- state ----------
 let view = 'week';
+let mode = 'view'; // 'view' (read-only, default) | 'edit' (paint + save)
 let weekStart = startOfWeek(new Date());
 let monthAnchor = firstOfMonth(new Date());
 let schedulesByWeek = {}; // { 'YYYY-MM-DD': {cells, lunches} }
@@ -227,6 +230,14 @@ function renderLunchRow() {
   for (let d = 0; d < DAYS.length; d++) {
     const cell = document.createElement('div');
     cell.className = 'lunch-cell';
+    if (mode === 'view') {
+      cell.classList.add('lunch-cell-view');
+      if (!currentLunches[d]) cell.classList.add('empty');
+      cell.textContent = currentLunches[d] || '—';
+      cell.setAttribute('aria-label', DAYS[d] + ' lunch');
+      row.appendChild(cell);
+      continue;
+    }
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'lunch-input';
@@ -264,6 +275,7 @@ function paint(el) {
 }
 
 grid.addEventListener('pointerdown', (e) => {
+  if (mode !== 'edit') return; // view mode: no painting
   const el = e.target.closest && e.target.closest('.slot');
   if (!el) return;
   try { e.target.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
@@ -328,6 +340,26 @@ function renderMonth() {
     monthWrap.appendChild(row);
   });
 }
+
+// ---------- view / edit mode ----------
+function applyMode() {
+  const editing = mode === 'edit';
+  document.body.classList.toggle('mode-edit', editing);
+  document.body.classList.toggle('mode-view', !editing);
+}
+function setMode(m) {
+  mode = m;
+  applyMode();
+  if (view === 'week') renderWeek(); // lunch row swaps inputs <-> text
+}
+editWeekBtn.addEventListener('click', () => { setMode('edit'); });
+doneEditBtn.addEventListener('click', () => {
+  if (!confirmLeaveDirty()) return;
+  loadWeekIntoEditor(weekStart); // discard unsaved edits
+  saveStatus.textContent = '';
+  saveStatus.className = 'status';
+  setMode('view');
+});
 
 // ---------- view + nav ----------
 function confirmLeaveDirty() {
@@ -551,7 +583,9 @@ async function saveWeek() {
     dirty = false;
     saveStatus.textContent = 'Saved ✓';
     saveStatus.className = 'status success';
-    renderWeek();
+    setMode('view'); // back to read-only after a successful save
+    loadStatus.textContent = 'Week saved ✓';
+    setTimeout(() => { if (loadStatus.textContent === 'Week saved ✓') loadStatus.textContent = ''; }, 2500);
   } catch (e) {
     saveStatus.textContent = e.message;
     saveStatus.className = 'status error';
@@ -567,4 +601,5 @@ window.addEventListener('beforeunload', (e) => {
 
 renderLegend();
 updateSelIndicator();
+applyMode(); // default to read-only view mode
 loadAll();

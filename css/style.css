@@ -1040,6 +1040,50 @@ table.cal td.slot.filled { border-bottom-color: rgba(255,255,255,0.25); }
 #save-cal:hover { background: var(--accent-dark); }
 #save-cal:disabled { opacity: 0.6; }
 
+/* ---------- schedule view / edit mode ----------
+   body.mode-view (default): calm read-only page — no palette, no More menu,
+   no paint affordances; the savebar holds a single "Edit week" button.
+   body.mode-edit: today's full editing experience. */
+body.mode-view .legend,
+body.mode-view .more-menu,
+body.mode-view .sel-indicator,
+body.mode-view .savebar-right {
+  display: none;
+}
+body.mode-view table.cal td.slot {
+  cursor: default;
+  touch-action: auto; /* restore normal scrolling over the grid */
+}
+#edit-week {
+  flex: 1;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#edit-week:hover { background: var(--accent-dark); }
+body.mode-edit #edit-week { display: none; }
+#done-edit { min-height: 40px; }
+.lunch-cell-view {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: #fbfbfa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.lunch-cell-view.empty { color: var(--muted); }
+
 @media print {
   .legend { margin-top: 0; }
   .cal-scroll { overflow: visible; }
